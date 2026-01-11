@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Products | Vaishnavi Time Solutions</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+
+<!-- Top bar -->
+<div class="bg-white shadow-sm">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between">
+    <span class="text-2xl font-semibold text-gray-900">Vaishnavi Time Solutions</span>
+    <div class="space-x-8 text-gray-600">
+      <a href="/" class="hover:text-black">Home</a>
+      <a href="/products-page" class="font-semibold text-black">Products</a>
+      <a href="/quote" class="hover:text-black">Get a Quote</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="max-w-7xl mx-auto px-6 py-16">
+  <h1 class="text-5xl font-bold tracking-tight">Biometric Machines</h1>
+  <p class="text-gray-500 mt-4">Fingerprint · Face · Attendance · Access Control</p>
+</div>
+
+<!-- Brand buttons -->
+<div class="max-w-7xl mx-auto px-6 flex gap-3 flex-wrap mb-10">
+  <button onclick="filterBrand('All')" class="px-5 py-2 bg-black text-white rounded-full">All</button>
+  <button onclick="filterBrand('BioLink')" class="brand">BioLink</button>
+  <button onclick="filterBrand('Mantra')" class="brand">Mantra</button>
+  <button onclick="filterBrand('Secureye')" class="brand">Secureye</button>
+  <button onclick="filterBrand('eSSL')" class="brand">eSSL</button>
+  <button onclick="filterBrand('Realtime')" class="brand">Realtime</button>
+</div>
+
+<!-- Products -->
+<div id="product-list" class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 px-6 pb-32"></div>
+
+<style>
+.brand{
+  padding:10px 20px;
+  border-radius:999px;
+  background:#e5e7eb;
+}
+.brand:hover{ background:#111827; color:white;}
+</style>
+
+<script>
+let allProducts = [];
+let currentBrand = "All";
+
+function loadProducts(){
+ fetch("/api/products")
+ .then(res=>res.json())
+ .then(data=>{
+   allProducts = data.products;
+   filterBrand(currentBrand);
+ });
+}
+
+function filterBrand(brand){
+ currentBrand = brand;
+ if(brand=="All"){
+   render(allProducts);
+ }else{
+   render(allProducts.filter(p => p.brand.toLowerCase().includes(brand.toLowerCase())));
+ }
+}
+
+function render(list){
+ let html="";
+ list.forEach(p=>{
+   let img = p.image ? "/static/uploads/"+p.image : "https://source.unsplash.com/600x400/?biometric,scanner";
+   let wa = `https://wa.me/919999999999?text=${encodeURIComponent("I am interested in "+p.brand+" "+p.name)}`;
+
+   html += `
+    <div class="bg-white rounded-2xl overflow-hidden shadow hover:shadow-xl transition">
+      <img src="${img}" class="w-full h-64 object-contain bg-white p-6">
+      <div class="p-6">
+        <span class="text-sm text-gray-400">${p.brand}</span>
+        <h3 class="text-xl font-semibold mt-1">
+          <a href="/product/${p.id}">${p.name}</a>
+        </h3>
+        <p class="text-gray-500 mt-2">${p.description}</p>
+
+        <a href="${wa}" target="_blank"
+          class="inline-block mt-5 text-blue-600 font-semibold hover:underline">
+          Get a Quote →
+        </a>
+      </div>
+    </div>
+   `;
+ });
+ document.getElementById("product-list").innerHTML = html;
+}
+
+loadProducts();
+setInterval(loadProducts,4000);
+</script>
+
+</body>
+</html>
